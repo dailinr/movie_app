@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -88,4 +89,31 @@ public class MovieController {
             .created(newLocation)
             .body(movieCreated);
     }
+
+    @RequestMapping(method = RequestMethod.PUT, value = "/{id}")
+    public ResponseEntity<Movie> updateOneById(@PathVariable Long id, 
+        @RequestBody Movie movie
+    ) {
+       
+        try {
+            Movie updatedMovie = movieService.updateOneById(id, movie);
+            return ResponseEntity.ok(updatedMovie);
+        } 
+        catch (ObjectNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } 
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
+    public ResponseEntity<Void> deleteOneById(@PathVariable Long id) {
+        
+        try {
+            movieService.deleteOneById(id);
+            return ResponseEntity.noContent().build(); // noContent por ser de tipo void
+        } 
+        catch (ObjectNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    } 
+
 }
