@@ -1,10 +1,9 @@
 package com.dailin.movie_app.controller;
 
+import java.net.URI;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.http.HttpHeaders;
-// import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +16,8 @@ import com.dailin.movie_app.exception.ObjectNotFoundException;
 import com.dailin.movie_app.persistence.entity.Movie;
 import com.dailin.movie_app.service.MovieService;
 import com.dailin.movie_app.util.MovieGenre;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/movies")
@@ -62,5 +63,29 @@ public class MovieController {
             return ResponseEntity.notFound().build();
         }
         
+    }
+
+    @RequestMapping(method = RequestMethod.POST)
+    public ResponseEntity<Movie> createOne(@RequestParam String title,
+        @RequestParam String director, @RequestParam MovieGenre genre, 
+        @RequestParam int releaseYear, HttpServletRequest request
+    ) {
+        Movie newMovie = new Movie();
+
+        newMovie.setTitle(title);
+        newMovie.setDirector(director);
+        newMovie.setGenre(genre);
+        newMovie.setReleaseYear(releaseYear);
+
+        Movie movieCreated = movieService.createOne(newMovie);
+
+        String baseUrl = request.getRequestURL().toString();
+
+        // creamos la nueva localizacion paara acceder al documento recien creado
+        URI newLocation = URI.create(baseUrl+"/"+movieCreated.getId());
+        
+        return ResponseEntity
+            .created(newLocation)
+            .body(movieCreated);
     }
 }

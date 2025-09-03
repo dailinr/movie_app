@@ -3,6 +3,7 @@ package com.dailin.movie_app.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dailin.movie_app.exception.ObjectNotFoundException;
 import com.dailin.movie_app.persistence.entity.User;
 import com.dailin.movie_app.service.UserService;
 
@@ -21,7 +23,7 @@ public class UserController {
     private UserService userService;
 
     @RequestMapping(method = RequestMethod.GET)
-    public List<User> findAll(@RequestParam(required = false) String name) {
+    public ResponseEntity<List<User>> findAll(@RequestParam(required = false) String name) {
 
         List<User> usuarios = null;
 
@@ -32,11 +34,18 @@ public class UserController {
             usuarios = userService.findAll();
         }
 
-        return usuarios;
+        return ResponseEntity.ok(usuarios);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{username}")
-    public User findOneByUsername (@PathVariable String username) {
-        return userService.findOneByUsername(username);
+    public ResponseEntity<User> findOneByUsername (@PathVariable String username) {
+
+        try {
+            return ResponseEntity.ok(userService.findOneByUsername(username));
+        } catch (ObjectNotFoundException e) {
+            // return ResponseEntity.status(404).build(); //
+            return ResponseEntity.notFound().build(); 
+        }
+        
     }
 }
