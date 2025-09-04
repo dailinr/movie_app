@@ -1,6 +1,11 @@
 package com.dailin.movie_app.persistence.entity;
 
+import java.time.LocalDateTime;
 import java.util.List;
+
+import org.hibernate.annotations.CreationTimestamp;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -24,6 +29,12 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    @CreationTimestamp // se auto-genera cuando ingresamos una nueva pelicula
+    @JsonFormat(pattern = "yyyy/MM/dd - HH:mm:ss") // definir el formato de una fecha
+    // SimpleDateFormat // guia de formatos de fecha
+    @Column(updatable = false, columnDefinition = "TIMESTAMP DEFAULT NOW()") // no se puede modificar
+    private LocalDateTime createdAt;
+
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
     private List<Rating> ratings;
 
@@ -37,6 +48,14 @@ public class User {
 
     public String getUsername() {
         return username;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     public void setUsername(String username) {

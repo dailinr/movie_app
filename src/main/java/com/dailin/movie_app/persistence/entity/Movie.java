@@ -1,8 +1,13 @@
 package com.dailin.movie_app.persistence.entity;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import com.dailin.movie_app.util.MovieGenre;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,9 +32,17 @@ public class Movie {
     private String director;
     
     @Enumerated(EnumType.STRING) // para que guarde el nombre y no su pos
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY) // deshabilita este atributo para enviar datos (cliente) - solo para respuestas
     private MovieGenre genre;
 
+    @JsonProperty(value = "release-year") // formato para el campo json
     private int releaseYear;
+    
+    @CreationTimestamp // se auto-genera cuando ingresamos una nueva pelicula
+    @JsonFormat(pattern = "yyyy/MM/dd - HH:mm:ss") // definir el formato de una fecha
+    // SimpleDateFormat // guia de formatos de fecha
+    @Column(updatable = false, columnDefinition = "TIMESTAMP DEFAULT NOW()") // no se puede modificar
+    private LocalDateTime createdAt;
 
     // una pelicula puede tener muchas calificaciones
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "movie")
@@ -83,5 +96,11 @@ public class Movie {
         this.ratings = ratings;
     }
 
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 }
