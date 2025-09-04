@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.dailin.movie_app.exception.ObjectNotFoundException;
 import com.dailin.movie_app.persistence.entity.Rating;
@@ -11,26 +12,31 @@ import com.dailin.movie_app.persistence.repository.RatingCrudRepository;
 import com.dailin.movie_app.service.RatingService;
 
 @Service
+@Transactional
 public class RatingServiceImpl implements RatingService {
 
     @Autowired
     private RatingCrudRepository ratingCrudRepository;
 
+    @Transactional(readOnly = true)
     @Override
     public List<Rating> findAll() {
-      return ratingCrudRepository.findAll();
+        return ratingCrudRepository.findAll();
     }
-
+    
+    @Transactional(readOnly = true)
     @Override
     public List<Rating> findAllByMovieId(Long movieId) {
         return ratingCrudRepository.findByMovieId(movieId);
     }
-
+    
+    @Transactional(readOnly = true)
     @Override
     public List<Rating> findAllByUsername(String username) {
-       return ratingCrudRepository.findByUsername(username);
+        return ratingCrudRepository.findByUsername(username);
     }
-
+    
+    @Transactional(readOnly = true)
     @Override
     public Rating findOneById(Long id) {
         return ratingCrudRepository.findById(id)

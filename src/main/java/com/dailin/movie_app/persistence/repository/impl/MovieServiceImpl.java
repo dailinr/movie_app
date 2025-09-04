@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.dailin.movie_app.exception.ObjectNotFoundException;
 import com.dailin.movie_app.persistence.entity.Movie;
@@ -11,33 +12,40 @@ import com.dailin.movie_app.persistence.repository.MovieCrudRepository;
 import com.dailin.movie_app.service.MovieService;
 import com.dailin.movie_app.util.MovieGenre;
 
+
+
 @Service
+@Transactional
 public class MovieServiceImpl implements MovieService{
 
     @Autowired 
     private MovieCrudRepository movieCrudRepository;
 
-    
+    @Transactional(readOnly = true)
     @Override
     public List<Movie> findAll() {
         return movieCrudRepository.findAll();
     }
-
+    
+    @Transactional(readOnly = true)
     @Override
     public List<Movie> findAllByTitle(String title) {
         return movieCrudRepository.findByTitleContaining(title);
     }
-
+    
+    @Transactional(readOnly = true)
     @Override
     public List<Movie> findAllByGenre(MovieGenre genre) {
         return movieCrudRepository.findByGenre(genre);
     }
-
+    
+    @Transactional(readOnly = true)
     @Override
     public List<Movie> findAllByGenreAndTitle(MovieGenre genre, String title) {
         return movieCrudRepository.findByGenreAndTitleContaining(genre, title);
     }
-
+    
+    @Transactional(readOnly = true)
     @Override
     public Movie findOneById(Long id) {
         // findById devuelve un optional, pero con un orElseThrow devuelve el obj(movie)
