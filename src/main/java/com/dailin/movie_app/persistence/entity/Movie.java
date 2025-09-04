@@ -7,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import com.dailin.movie_app.util.MovieGenre;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.Column;
@@ -46,6 +47,7 @@ public class Movie {
 
     // una pelicula puede tener muchas calificaciones
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "movie")
+    @JsonManagedReference // se coloca en la propiedad del obj principal (quien tenga ela IForgain) en una relacion bidireccional
     private List<Rating> ratings;
 
     public Long getId() {
