@@ -2,26 +2,27 @@ package com.dailin.movie_app.service;
 
 import java.util.List;
 
-import com.dailin.movie_app.persistence.entity.Movie;
+import com.dailin.movie_app.dto.request.SaveMovie;
+import com.dailin.movie_app.dto.response.GetMovie;
 import com.dailin.movie_app.util.MovieGenre;
 
 public interface MovieService {
 
     // listar todas las peliculas
-    List<Movie> findAll();
+    List<GetMovie> findAll();
     
     // filtrar peliculas por su titulo
-    List<Movie> findAllByTitle(String title);
+    List<GetMovie> findAllByTitle(String title);
     
-    List<Movie> findAllByGenre(MovieGenre genre);
+    List<GetMovie> findAllByGenre(MovieGenre genre);
     
-    List<Movie> findAllByGenreAndTitle(MovieGenre genre, String title);
+    List<GetMovie> findAllByGenreAndTitle(MovieGenre genre, String title);
 
-    Movie findOneById(Long id);
+    GetMovie findOneById(Long id);
 
-    Movie createOne(Movie movie);
+    GetMovie createOne(SaveMovie movie);
 
-    Movie updateOneById(Long id, Movie movie);
+    GetMovie updateOneById(Long id, SaveMovie movie);
 
     void deleteOneById(Long id);
 }

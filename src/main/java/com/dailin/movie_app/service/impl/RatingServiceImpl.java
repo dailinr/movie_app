@@ -1,4 +1,4 @@
-package com.dailin.movie_app.persistence.repository.impl;
+package com.dailin.movie_app.service.impl;
 
 import java.util.List;
 

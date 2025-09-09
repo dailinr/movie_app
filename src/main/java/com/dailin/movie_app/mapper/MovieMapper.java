@@ -46,5 +46,16 @@ public class MovieMapper {
         newMovie.setGenre(saveDto.genre());
         
         return newMovie;
+    }
+
+    // metodo para actualizar 
+    public static void updateEntity(Movie oldMovie, SaveMovie saveDto) {
+
+        if(oldMovie == null || saveDto == null) return;
+
+        oldMovie.setGenre(saveDto.genre());
+        oldMovie.setReleaseYear(saveDto.releaseYear());
+        oldMovie.setTitle(saveDto.title());
+        oldMovie.setDirector(saveDto.director());
     } 
 }
