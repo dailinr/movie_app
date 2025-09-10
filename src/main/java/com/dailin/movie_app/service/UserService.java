@@ -2,19 +2,20 @@ package com.dailin.movie_app.service;
 
 import java.util.List;
 
-import com.dailin.movie_app.persistence.entity.User;
+import com.dailin.movie_app.dto.request.SaveUser;
+import com.dailin.movie_app.dto.response.GetUser;
 
 public interface UserService {
 
-    List<User> findAll();
+    List<GetUser> findAll();
 
-    List<User> findAllByName(String name);
+    List<GetUser> findAllByName(String name);
 
-    User findOneByUsername(String username);
+    GetUser findOneByUsername(String username);
 
-    User updatedOneByUsername(String username, User user);
+    GetUser updatedOneByUsername(String username, SaveUser saveDto);
 
-    User createOne(User user);
+    GetUser createOne(SaveUser saveDto);
 
     void deleteOneByUsername(String username);
 }

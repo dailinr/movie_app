@@ -41,5 +41,14 @@ public class UserMapper {
         newUser.setPassword(saveDto.password());
         
         return newUser;
+    }
+
+    public static void updateEntity(User oldUser, SaveUser saveDto) {
+        
+        if(oldUser == null || saveDto == null) return;
+
+        oldUser.setName(saveDto.name());
+        // --- validar el password ---
+        oldUser.setPassword(saveDto.password());
     } 
 }

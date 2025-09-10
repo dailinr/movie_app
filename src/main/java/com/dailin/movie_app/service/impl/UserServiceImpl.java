@@ -6,7 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dailin.movie_app.dto.request.SaveUser;
+import com.dailin.movie_app.dto.response.GetUser;
 import com.dailin.movie_app.exception.ObjectNotFoundException;
+import com.dailin.movie_app.mapper.UserMapper;
 import com.dailin.movie_app.persistence.entity.User;
 import com.dailin.movie_app.persistence.repository.UserCrudRepository;
 import com.dailin.movie_app.service.UserService;
@@ -19,8 +22,9 @@ public class UserServiceImpl implements UserService {
     private UserCrudRepository userCrudRepository;
 
     @Override
-    public User createOne(User user) {
-        return userCrudRepository.save(user);
+    public GetUser createOne(SaveUser saveDto) {
+        User newUser = UserMapper.toEntity(saveDto);
+        return UserMapper.toGetDto(userCrudRepository.save(newUser));
     }
     
     @Override
@@ -35,32 +39,38 @@ public class UserServiceImpl implements UserService {
     
     @Transactional(readOnly = true)
     @Override
-    public List<User> findAll() {
-        return userCrudRepository.findAll();
+    public List<GetUser> findAll() {
+        List<User> entities = userCrudRepository.findAll();
+        return UserMapper.toGetDtoList(entities);
     }
     
     @Transactional(readOnly = true)
     @Override
-    public List<User> findAllByName(String name) {
-        return userCrudRepository.findByNameContaining(name);
+    public List<GetUser> findAllByName(String name) {
+        List<User> entities = userCrudRepository.findByNameContaining(name);
+        return UserMapper.toGetDtoList(entities);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public GetUser findOneByUsername(String username) {
+        return UserMapper.toGetDto(
+            this.findOneEntityByUsername(username)
+        );
     }
     
     @Transactional(readOnly = true)
-    @Override
-    public User findOneByUsername(String username) {
+    private User findOneEntityByUsername(String username) {
         return userCrudRepository.findByUsername(username)
             .orElseThrow(() -> new ObjectNotFoundException("[user: " + username + " ]")) ;
     }
 
     @Override
-    public User updatedOneByUsername(String username, User user) {
-        User oldUser = this.findOneByUsername(username);
+    public GetUser updatedOneByUsername(String username, SaveUser saveDto) {
+        User oldUser = this.findOneEntityByUsername(username);
 
-        oldUser.setName(user.getName());
-        // --- validar el password ---
-        oldUser.setPassword(user.getPassword());
+        UserMapper.updateEntity(oldUser, saveDto);
 
-        return userCrudRepository.save(oldUser);
+        return UserMapper.toGetDto(userCrudRepository.save(oldUser));
     }
-
 }

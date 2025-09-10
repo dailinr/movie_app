@@ -15,8 +15,6 @@ import com.dailin.movie_app.persistence.repository.MovieCrudRepository;
 import com.dailin.movie_app.service.MovieService;
 import com.dailin.movie_app.util.MovieGenre;
 
-
-
 @Service
 @Transactional
 public class MovieServiceImpl implements MovieService{
@@ -100,5 +98,4 @@ public class MovieServiceImpl implements MovieService{
         // metodo delete recibe como parametro la entidad como tal
         movieCrudRepository.delete(movie);
     }
-
 }
