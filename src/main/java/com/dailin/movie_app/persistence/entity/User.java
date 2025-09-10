@@ -5,9 +5,6 @@ import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -31,13 +28,13 @@ public class User {
     private String password;
 
     @CreationTimestamp // se auto-genera cuando ingresamos una nueva pelicula
-    @JsonFormat(pattern = "yyyy/MM/dd - HH:mm:ss") // definir el formato de una fecha
+    // @JsonFormat(pattern = "yyyy/MM/dd - HH:mm:ss") // definir el formato de una fecha
     // SimpleDateFormat // guia de formatos de fecha
     @Column(updatable = false, columnDefinition = "TIMESTAMP DEFAULT NOW()") // no se puede modificar
     private LocalDateTime createdAt;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
-    @JsonManagedReference // se coloca en la propiedad del obj principal (quien tenga ela IForgain) en una relacion bidireccional
+    // @JsonManagedReference // se coloca en la propiedad del obj principal (quien tenga ela IForgain) en una relacion bidireccional
     private List<Rating> ratings;
 
     public Long getId() {
@@ -87,6 +84,4 @@ public class User {
     public void setRatings(List<Rating> ratings) {
         this.ratings = ratings;
     }
-
-    
 }
