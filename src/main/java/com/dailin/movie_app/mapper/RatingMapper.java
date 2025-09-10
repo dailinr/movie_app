@@ -1,5 +1,7 @@
 package com.dailin.movie_app.mapper;
 
+import java.util.List;
+
 import com.dailin.movie_app.dto.response.GetMovie;
 import com.dailin.movie_app.dto.response.GetUser;
 import com.dailin.movie_app.persistence.entity.Rating;
@@ -34,5 +36,21 @@ public class RatingMapper {
             movieTitle, 
             entity.getMovieId()
         );
+    }
+
+    public static List<GetMovie.GetRating> toGetMovieRatingDtoList(List<Rating> entities) {
+        if(entities == null) return null;
+
+        return entities.stream()
+            .map(RatingMapper::toGetMovieRatingDto)
+            .toList();
+    }
+
+    public static List<GetUser.GetRating> toGetUserRatingDtoList(List<Rating> entities) {
+        if(entities == null) return null;
+
+        return entities.stream()
+            .map(RatingMapper::toGetUserRatingDto)
+            .toList();
     }
 }

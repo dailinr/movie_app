@@ -6,15 +6,19 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dailin.movie_app.dto.request.SaveMovie;
+import com.dailin.movie_app.dto.response.GetMovie;
 import com.dailin.movie_app.exception.ObjectNotFoundException;
-import com.dailin.movie_app.persistence.entity.Movie;
 import com.dailin.movie_app.service.MovieService;
 import com.dailin.movie_app.util.MovieGenre;
 
@@ -27,12 +31,12 @@ public class MovieController {
     @Autowired
     private MovieService movieService;
 
-    @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<List<Movie>> findAll(@RequestParam(required = false) String title, 
+    @GetMapping
+    public ResponseEntity<List<GetMovie>> findAll(@RequestParam(required = false) String title, 
         @RequestParam(required = false) MovieGenre genre) 
     {
 
-        List<Movie> peliculas = null;
+        List<GetMovie> peliculas = null;
 
         // validamos que haya un valor para variable title y que no este vacio con espacione en blanco
         if(StringUtils.hasText(title) && genre != null) {
@@ -55,8 +59,8 @@ public class MovieController {
 
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/{id}")
-    public ResponseEntity<Movie> findOneById(@PathVariable Long id) {
+    @GetMapping(value = "/{id}")
+    public ResponseEntity<GetMovie> findOneById(@PathVariable Long id) {
 
         try {
             return ResponseEntity.ok(movieService.findOneById(id)); // sino logra encontrar la pelicula se lanza la excepcion
@@ -66,37 +70,29 @@ public class MovieController {
         
     }
 
-    @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<Movie> createOne(@RequestParam String title,
-        @RequestParam String director, @RequestParam MovieGenre genre, 
-        @RequestParam int releaseYear, HttpServletRequest request
+    @PostMapping
+    public ResponseEntity<GetMovie> createOne(
+        @RequestBody SaveMovie saveDto, 
+        HttpServletRequest request
     ) {
-        Movie newMovie = new Movie();
-
-        newMovie.setTitle(title);
-        newMovie.setDirector(director);
-        newMovie.setGenre(genre);
-        newMovie.setReleaseYear(releaseYear);
-
-        Movie movieCreated = movieService.createOne(newMovie);
+        
+        GetMovie movieCreated = movieService.createOne(saveDto);
 
         String baseUrl = request.getRequestURL().toString();
+        URI newLocation = URI.create(baseUrl + "/" + movieCreated.id());
 
-        // creamos la nueva localizacion paara acceder al documento recien creado
-        URI newLocation = URI.create(baseUrl+"/"+movieCreated.getId());
-        
         return ResponseEntity
             .created(newLocation)
             .body(movieCreated);
     }
 
-    @RequestMapping(method = RequestMethod.PUT, value = "/{id}")
-    public ResponseEntity<Movie> updateOneById(@PathVariable Long id, 
-        @RequestBody Movie movie
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<GetMovie> updateOneById(@PathVariable Long id, 
+        @RequestBody SaveMovie saveDto
     ) {
        
         try {
-            Movie updatedMovie = movieService.updateOneById(id, movie);
+            GetMovie updatedMovie = movieService.updateOneById(id, saveDto);
             return ResponseEntity.ok(updatedMovie);
         } 
         catch (ObjectNotFoundException e) {
@@ -104,7 +100,7 @@ public class MovieController {
         } 
     }
 
-    @RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
+    @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> deleteOneById(@PathVariable Long id) {
         
         try {

@@ -6,15 +6,19 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dailin.movie_app.dto.request.SaveUser;
+import com.dailin.movie_app.dto.response.GetUser;
 import com.dailin.movie_app.exception.ObjectNotFoundException;
-import com.dailin.movie_app.persistence.entity.User;
 import com.dailin.movie_app.service.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,10 +30,10 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<List<User>> findAll(@RequestParam(required = false) String name) {
+    @GetMapping
+    public ResponseEntity<List<GetUser>> findAll(@RequestParam(required = false) String name) {
 
-        List<User> usuarios = null;
+        List<GetUser> usuarios = null;
 
         if(StringUtils.hasText(name)) {
             usuarios = userService.findAllByName(name);
@@ -41,8 +45,8 @@ public class UserController {
         return ResponseEntity.ok(usuarios);
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/{username}")
-    public ResponseEntity<User> findOneByUsername (@PathVariable String username) {
+    @GetMapping(value = "/{username}")
+    public ResponseEntity<GetUser> findOneByUsername (@PathVariable String username) {
 
         try {
             return ResponseEntity.ok(userService.findOneByUsername(username));
@@ -50,16 +54,15 @@ public class UserController {
             // return ResponseEntity.status(404).build(); //
             return ResponseEntity.notFound().build(); 
         }
-        
     }
 
-    @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<User> createOne(@RequestBody User user, HttpServletRequest request) {
+    @PostMapping
+    public ResponseEntity<GetUser> createOne(@RequestBody SaveUser saveDto, HttpServletRequest request) {
        
-        User userCreated = userService.createOne(user);
+        GetUser userCreated = userService.createOne(saveDto);
         String baseUrl = request.getRequestURL().toString();
         // creamos la nueva localizacion paara acceder al documento recien creado
-        URI newLocation = URI.create(baseUrl+"/"+userCreated.getId());
+        URI newLocation = URI.create(baseUrl+"/"+saveDto.username());
 
 
         return ResponseEntity
@@ -68,10 +71,10 @@ public class UserController {
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/{username}")
-    public ResponseEntity<User> updateOneByUsername(@PathVariable String username, @RequestBody User user){
+    public ResponseEntity<GetUser> updateOneByUsername(@PathVariable String username, @RequestBody SaveUser saveDto){
 
         try {
-            User userUpdated = userService.updatedOneByUsername(username, user);
+            GetUser userUpdated = userService.updatedOneByUsername(username, saveDto);
             return ResponseEntity.ok(userUpdated);
         } 
         catch (ObjectNotFoundException e) {
@@ -79,7 +82,7 @@ public class UserController {
         }
     }
 
-    @RequestMapping(method = RequestMethod.DELETE, value = "/{username}")
+    @DeleteMapping(value = "/{username}")
     public ResponseEntity<Void> deleteOneByUsername(@PathVariable String username) {
         
         try {
