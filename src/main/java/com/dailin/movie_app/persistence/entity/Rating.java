@@ -27,15 +27,11 @@ public class Rating {
     // puede haber muchas calificaciones para una misma pelicula
     @ManyToOne
     @JoinColumn(name = "movie_id", insertable = false, updatable = false) // la columna que permite la relacion/union, solo será de lectura
-    // @JsonIgnore // para evitar que se entre en una serializacion infinita (solo tendrá los id)
-    // @JsonBackReference // se coloca en el oobj secundario (parte dependiente) evitando serializacion infinita
     private Movie movie;
     
     // puede haber muchas calificaciones para una misma pelicula
     @ManyToOne
     @JoinColumn(name = "user_id", insertable = false, updatable = false) // la columna que permite la relacion/union, solo será de lectura
-    // @JsonIgnore // para evitar que se entre en una serializacion infinita
-    // @JsonBackReference // se coloca en el oobj secundario (parte dependiente) evitando serializacion infinita
     private User user;
 
     @Column(nullable = false)

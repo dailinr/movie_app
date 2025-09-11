@@ -22,6 +22,7 @@ import com.dailin.movie_app.exception.ObjectNotFoundException;
 import com.dailin.movie_app.service.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/users")
@@ -57,7 +58,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<GetUser> createOne(@RequestBody SaveUser saveDto, HttpServletRequest request) {
+    public ResponseEntity<GetUser> createOne(@RequestBody @Valid SaveUser saveDto, HttpServletRequest request) {
        
         GetUser userCreated = userService.createOne(saveDto);
         String baseUrl = request.getRequestURL().toString();

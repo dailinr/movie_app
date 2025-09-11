@@ -23,6 +23,7 @@ import com.dailin.movie_app.service.MovieService;
 import com.dailin.movie_app.util.MovieGenre;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/movies")
@@ -72,7 +73,7 @@ public class MovieController {
 
     @PostMapping
     public ResponseEntity<GetMovie> createOne(
-        @RequestBody SaveMovie saveDto, 
+        @Valid @RequestBody SaveMovie saveDto, 
         HttpServletRequest request
     ) {
         
@@ -88,7 +89,7 @@ public class MovieController {
 
     @PutMapping(value = "/{id}")
     public ResponseEntity<GetMovie> updateOneById(@PathVariable Long id, 
-        @RequestBody SaveMovie saveDto
+        @RequestBody @Valid SaveMovie saveDto
     ) {
        
         try {
