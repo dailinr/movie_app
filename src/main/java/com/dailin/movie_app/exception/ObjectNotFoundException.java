@@ -12,7 +12,7 @@ public class ObjectNotFoundException extends RuntimeException {
 
     public ObjectNotFoundException(String objectNotFoundName, Throwable cause) {
         this.objectNotFoundName = objectNotFoundName;
-        this.cause = cause;
+         this.cause = cause;
     }
 
     @Override
