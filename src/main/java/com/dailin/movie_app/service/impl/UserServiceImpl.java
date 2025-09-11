@@ -13,6 +13,7 @@ import com.dailin.movie_app.mapper.UserMapper;
 import com.dailin.movie_app.persistence.entity.User;
 import com.dailin.movie_app.persistence.repository.UserCrudRepository;
 import com.dailin.movie_app.service.UserService;
+import com.dailin.movie_app.service.validator.PasswordValidator;
 
 @Service
 @Transactional
@@ -23,6 +24,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public GetUser createOne(SaveUser saveDto) {
+        PasswordValidator.validatePassword(saveDto.password(), saveDto.passwordRepeated()); // y si no lanza la excepcion InvalidPasswordException
         User newUser = UserMapper.toEntity(saveDto);
         return UserMapper.toGetDto(userCrudRepository.save(newUser));
     }
@@ -67,6 +69,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public GetUser updatedOneByUsername(String username, SaveUser saveDto) {
+        PasswordValidator.validatePassword(saveDto.password(), saveDto.passwordRepeated());
         User oldUser = this.findOneEntityByUsername(username);
 
         UserMapper.updateEntity(oldUser, saveDto);
