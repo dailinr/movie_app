@@ -57,7 +57,6 @@ public class MovieController {
         // return new ResponseEntity<List<Movie>>(peliculas, headers, HttpStatus.OK); // opcion 1
         // return ResponseEntity.status(HttpStatus.OK).body(peliculas); // opcion 2
         return ResponseEntity.ok(peliculas); // opcion 3: mas usuada
-
     }
 
     @GetMapping(value = "/{id}")
@@ -68,7 +67,6 @@ public class MovieController {
         } catch (ObjectNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
-        
     }
 
     @PostMapping
@@ -77,6 +75,7 @@ public class MovieController {
         HttpServletRequest request
     ) {
         
+        System.out.println("fecha: "+saveDto.availabilityEndTime());
         GetMovie movieCreated = movieService.createOne(saveDto);
 
         String baseUrl = request.getRequestURL().toString();
@@ -112,5 +111,4 @@ public class MovieController {
             return ResponseEntity.notFound().build();
         }
     } 
-
 }

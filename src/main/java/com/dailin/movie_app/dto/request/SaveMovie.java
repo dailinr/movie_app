@@ -1,13 +1,16 @@
 package com.dailin.movie_app.dto.request;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 
 import com.dailin.movie_app.util.MovieGenre;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
 
 public record SaveMovie(
@@ -25,6 +28,12 @@ public record SaveMovie(
     @Min(value = 1900)
     @Max(value = 2025)
     @JsonProperty(value = "release_year")
-    int releaseYear
+    int releaseYear,
+
+    @JsonProperty("availability_end_time")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    // @Future // validacion solo para fechas futuras
+    @PastOrPresent // validacion solo para fechas pasadas o presente
+    LocalDate availabilityEndTime
 
 ) implements Serializable { }
