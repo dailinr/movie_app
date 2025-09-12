@@ -12,18 +12,18 @@ import jakarta.validation.constraints.Size;
 
 public record SaveMovie(
     
-    @NotBlank(message = "Title can't be blank")
-    @Size(min = 4, max = 255, message = "Title must have between {min} and {max} characters, current value = ${validatedValue}")
+    @NotBlank(message = "{generic.notblank}")
+    @Size(min = 4, max = 255, message = "{generic.size}")
     String title, 
 
-    @NotBlank(message = "Director can't be blank, current value = ${validatedValue}")
-    @Size(min = 4, max = 255, message = "Director must have between {min} and {max} characters, current value = ${validatedValue}")
+    @NotBlank(message = "{generic.notblank}")
+    @Size(min = 4, max = 255, message = "{generic.size}")
     String director, 
 
     MovieGenre genre,
     
-    @Min(value = 1900, message = "release_year must have a minimun value of {value}, current value = ${validatedValue}")
-    @Max(value = 2025, message = "release_year must have a maximun value of {value}, current value = ${validatedValue}")
+    @Min(value = 1900, message = "{generic.min}")
+    @Max(value = 2025, message = "{generic.max}") 
     @JsonProperty(value = "release_year")
     int releaseYear
 

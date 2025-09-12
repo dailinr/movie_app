@@ -10,21 +10,21 @@ import jakarta.validation.constraints.Size;
 
 public record SaveUser(
     
-    @NotBlank
-    @Pattern(regexp = "[a-zA-Z0-9-_]{8, 255}") 
+    @NotBlank(message = "{generic.notblank}")
+    @Pattern(regexp = "[a-zA-Z0-9-_]{8, 255}", message = "{saveUser.username.pattern}") 
     // puede incluir mayus y minus, numeros y (_ o -) . con minimo 8 caracteres
     String username,
     
-    @Size(max = 255)
+    @Size(max = 255, message = "{generic.size}")
     String name,
     
-    @NotBlank
-    @Size(min = 10, max = 255)
+    @NotBlank(message = "{generic.notblank}")
+    @Size(min = 10, max = 255, message = "{generic.size}")
     String password,
     
     @JsonProperty(value = "password_repeated") 
-    @NotBlank
-    @Size(min = 10, max = 255)
+    @NotBlank(message = "{generic.notblank}")
+    @Size(min = 10, max = 255, message = "{generic.size}")
     String passwordRepeated
 
 ) implements Serializable { }
