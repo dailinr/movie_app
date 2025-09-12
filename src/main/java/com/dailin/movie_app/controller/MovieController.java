@@ -75,7 +75,7 @@ public class MovieController {
         HttpServletRequest request
     ) {
         
-        System.out.println("fecha: "+saveDto.availabilityEndTime());
+        // System.out.println("fecha: "+saveDto.availabilityEndTime());
         GetMovie movieCreated = movieService.createOne(saveDto);
 
         String baseUrl = request.getRequestURL().toString();
