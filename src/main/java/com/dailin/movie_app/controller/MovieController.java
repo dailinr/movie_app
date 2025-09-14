@@ -1,12 +1,16 @@
 package com.dailin.movie_app.controller;
 
 import java.net.URI;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,12 +21,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dailin.movie_app.dto.request.SaveMovie;
+import com.dailin.movie_app.dto.response.ApiError;
 import com.dailin.movie_app.dto.response.GetMovie;
 import com.dailin.movie_app.exception.ObjectNotFoundException;
 import com.dailin.movie_app.service.MovieService;
 import com.dailin.movie_app.util.MovieGenre;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
 @RestController
@@ -106,4 +112,29 @@ public class MovieController {
             return ResponseEntity.notFound().build();
         }
     } 
+
+    // Metodo para manejar expeciones
+    @ExceptionHandler(Exception.class) 
+    public ResponseEntity<ApiError> handleGenericException(
+        Exception exception, 
+        HttpServletRequest request,
+        HttpServletResponse response
+    ) {
+
+        int httpStatus = HttpStatus.INTERNAL_SERVER_ERROR.value(); 
+
+        ZoneId zoneId = ZoneId.of("America/Bogota");
+        LocalDateTime timestamps = LocalDateTime.now(zoneId); // la hora actual
+
+        ApiError apiError =  new ApiError(
+            httpStatus,
+            request.getRequestURL().toString(), 
+            request.getMethod(), 
+            "Oops! Something went wrong on our server. Please try again later.", 
+            exception.getMessage(), 
+            timestamps,
+            null
+        );
+        return ResponseEntity.status(httpStatus).body(apiError);
+    }
 }

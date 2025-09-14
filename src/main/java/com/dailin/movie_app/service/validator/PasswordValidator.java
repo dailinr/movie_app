@@ -1,8 +1,6 @@
 package com.dailin.movie_app.service.validator;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.dailin.movie_app.exception.InvalidPasswordException;
 
@@ -12,9 +10,7 @@ public class PasswordValidator {
 
         // en caso de que alguno de los args esté vacio
         if (!StringUtils.hasText(password) || !StringUtils.hasText(passwordRepeated)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST.value(),
-                        "Password must contain data", 
-                        new IllegalArgumentException("Password must contain data"));
+            throw new IllegalArgumentException("Password must contain data");
         }
 
         // validar que coincidan los password
