@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -120,7 +123,8 @@ public class MovieController {
         Exception.class,
         ObjectNotFoundException.class,
         InvalidPasswordException.class,
-        MethodArgumentTypeMismatchException.class // el tipo de dato del argumento no coinciden 
+        MethodArgumentTypeMismatchException.class, // el tipo de dato del argumento no coinciden 
+        MethodArgumentNotValidException.class // el arg no es valido (según jakarta validation)
     }) 
     public ResponseEntity<ApiError> handleGenericException(
         Exception exception, 
@@ -140,9 +144,46 @@ public class MovieController {
         else if(exception instanceof MethodArgumentTypeMismatchException methodArgumentTypeMismatchException){
             return this.handleMethodArgumentTypeMismatchException(methodArgumentTypeMismatchException, request, response, timestamp);
         }
+        else if(exception instanceof MethodArgumentNotValidException methodArgumentNotValidException){
+            return this.handleMethodArgumentNotValidException(methodArgumentNotValidException, request, response, timestamp);
+        }
         else {
             return this.handleException(exception, request, response, timestamp);
         }
+    }
+
+    private ResponseEntity<ApiError> handleMethodArgumentNotValidException(
+            MethodArgumentNotValidException methodArgumentNotValidException, HttpServletRequest request,
+            HttpServletResponse response, LocalDateTime timestamp) {
+        
+        int httpStatus = HttpStatus.BAD_REQUEST.value();
+        
+        // Lista con los detalles de errores de validacion (jakarta validation)
+        List<ObjectError> errors = methodArgumentNotValidException.getAllErrors();
+        List<String> details = errors.stream().map( error -> {
+
+            // se comprueba que cada error sea una instancia FielErrors (campos definidos en la entidad)
+            if(error instanceof FieldError fieldError) { 
+                // devuelve el nombre del atributo/campo que no se validó y su mensaje
+               return fieldError.getField() + ": "+ fieldError.getDefaultMessage(); 
+            }
+
+            return error.getDefaultMessage();
+
+        }).toList(); // para que los convierta en una lista (de detalles de type String)
+
+        ApiError apiError =  new ApiError(
+            httpStatus,
+            request.getRequestURL().toString(), 
+            request.getMethod(), 
+            "The request contains invalid or incomplete parameters. " +
+            "Please verify and provide the required information before trying again.", 
+            methodArgumentNotValidException.getMessage(), 
+            timestamp,
+            details
+        );
+        
+        return ResponseEntity.status(httpStatus).body(apiError);
     }
 
     private ResponseEntity<ApiError> handleMethodArgumentTypeMismatchException(
