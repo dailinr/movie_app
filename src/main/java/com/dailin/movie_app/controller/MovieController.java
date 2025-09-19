@@ -19,10 +19,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import com.dailin.movie_app.dto.request.SaveMovie;
 import com.dailin.movie_app.dto.response.ApiError;
 import com.dailin.movie_app.dto.response.GetMovie;
+import com.dailin.movie_app.exception.InvalidPasswordException;
 import com.dailin.movie_app.exception.ObjectNotFoundException;
 import com.dailin.movie_app.service.MovieService;
 import com.dailin.movie_app.util.MovieGenre;
@@ -113,26 +115,103 @@ public class MovieController {
         }
     } 
 
-    // Metodo para manejar expeciones
-    @ExceptionHandler(Exception.class) 
+    // Metodo para manejar expeciones (todas en una)
+    @ExceptionHandler({
+        Exception.class,
+        ObjectNotFoundException.class,
+        InvalidPasswordException.class,
+        MethodArgumentTypeMismatchException.class // el tipo de dato del argumento no coinciden 
+    }) 
     public ResponseEntity<ApiError> handleGenericException(
         Exception exception, 
         HttpServletRequest request,
         HttpServletResponse response
     ) {
 
-        int httpStatus = HttpStatus.INTERNAL_SERVER_ERROR.value(); 
-
         ZoneId zoneId = ZoneId.of("America/Bogota");
-        LocalDateTime timestamps = LocalDateTime.now(zoneId); // la hora actual
+        LocalDateTime timestamp = LocalDateTime.now(zoneId); // la hora actual
+
+        if(exception instanceof ObjectNotFoundException objectNotFoundException) {
+            return this.handleObjectNotFoundException(objectNotFoundException, request, response, timestamp);
+        }
+        else if(exception instanceof InvalidPasswordException invalidPasswordException) {
+            return this.handleInvalidPasswordException(invalidPasswordException, request, response, timestamp);
+        }
+        else if(exception instanceof MethodArgumentTypeMismatchException methodArgumentTypeMismatchException){
+            return this.handleMethodArgumentTypeMismatchException(methodArgumentTypeMismatchException, request, response, timestamp);
+        }
+        else {
+            return this.handleException(exception, request, response, timestamp);
+        }
+    }
+
+    private ResponseEntity<ApiError> handleMethodArgumentTypeMismatchException(
+            MethodArgumentTypeMismatchException methodArgumentTypeMismatchException, HttpServletRequest request,
+            HttpServletResponse response, LocalDateTime timestamp) {
+            
+        int httpStatus = HttpStatus.BAD_REQUEST.value(); 
+        Object valueRejected = methodArgumentTypeMismatchException.getValue(); // devuelve el valor del argumento - lo saca como obj porque desconoce su type
+        String propertyName = methodArgumentTypeMismatchException.getName(); // devuelve el nombre de la propiedad (args)
 
         ApiError apiError =  new ApiError(
             httpStatus,
             request.getRequestURL().toString(), 
             request.getMethod(), 
-            "Oops! Something went wrong on our server. Please try again later.", 
+            "Invalid Request: The provided value '"+valueRejected+"' does not have expected data type for the "+propertyName, 
+            methodArgumentTypeMismatchException.getMessage(), 
+            timestamp,
+            null
+        );
+        return ResponseEntity.status(httpStatus).body(apiError);
+    }
+
+    private ResponseEntity<ApiError> handleException(Exception exception, HttpServletRequest request, HttpServletResponse response,
+            LocalDateTime timestamp) {
+    
+        int httpStatus = HttpStatus.INTERNAL_SERVER_ERROR.value(); 
+
+        ApiError apiError =  new ApiError(
+            httpStatus,
+            request.getRequestURL().toString(), 
+            request.getMethod(), 
+            "Opps! Something went wrong on our server. Please try again later.", 
             exception.getMessage(), 
-            timestamps,
+            timestamp,
+            null
+        );
+        return ResponseEntity.status(httpStatus).body(apiError);
+    }
+
+    private ResponseEntity<ApiError> handleInvalidPasswordException(InvalidPasswordException invalidPasswordException,
+            HttpServletRequest request, HttpServletResponse response, LocalDateTime timestamp) {
+        
+        int httpStatus = HttpStatus.BAD_REQUEST.value(); 
+
+        ApiError apiError =  new ApiError(
+            httpStatus,
+            request.getRequestURL().toString(), 
+            request.getMethod(), 
+            "Invalid Password: The provided password does not meet the required criteria, "+invalidPasswordException.getErrorDescription(), 
+            invalidPasswordException.getMessage(), 
+            timestamp,
+            null
+        );
+        return ResponseEntity.status(httpStatus).body(apiError);
+    }
+
+    private ResponseEntity<ApiError> handleObjectNotFoundException(Exception objectNotFoundException,
+            HttpServletRequest request, HttpServletResponse response, LocalDateTime timestamp) {
+       
+        int httpStatus = HttpStatus.NOT_FOUND.value(); 
+
+        ApiError apiError =  new ApiError(
+            httpStatus,
+            request.getRequestURL().toString(), 
+            request.getMethod(), 
+            "I'm sorry, the requested information could not be found. " + 
+                "Please check the URL or try another search ", 
+            objectNotFoundException.getMessage(), 
+            timestamp,
             null
         );
         return ResponseEntity.status(httpStatus).body(apiError);
