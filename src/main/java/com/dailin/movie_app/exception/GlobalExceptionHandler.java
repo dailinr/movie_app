@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -28,7 +29,8 @@ public class GlobalExceptionHandler {
         ObjectNotFoundException.class,
         InvalidPasswordException.class,
         MethodArgumentTypeMismatchException.class, // el tipo de dato del argumento no coinciden 
-        MethodArgumentNotValidException.class // el arg no es valido (según jakarta validation)
+        MethodArgumentNotValidException.class, // el arg no es valido (según jakarta validation)
+        HttpRequestMethodNotSupportedException.class, // 405: method http no permitido
     }) 
     public ResponseEntity<ApiError> handleAllExceptions(
         Exception exception, 
@@ -51,9 +53,31 @@ public class GlobalExceptionHandler {
         else if(exception instanceof MethodArgumentNotValidException methodArgumentNotValidException){
             return this.handleMethodArgumentNotValidException(methodArgumentNotValidException, request, response, timestamp);
         }
+        else if(exception instanceof HttpRequestMethodNotSupportedException httpRequestMethodNotSupportedException){
+            return this.handleHttpRequestMethodNotSupportedException(httpRequestMethodNotSupportedException, request, response, timestamp);
+        }
         else {
             return this.handleException(exception, request, response, timestamp);
         }
+    }
+
+    private ResponseEntity<ApiError> handleHttpRequestMethodNotSupportedException(
+            HttpRequestMethodNotSupportedException httpRequestMethodNotSupportedException, HttpServletRequest request,
+            HttpServletResponse response, LocalDateTime timestamp) {
+
+        int httpStatus = HttpStatus.METHOD_NOT_ALLOWED.value(); 
+
+        ApiError apiError =  new ApiError(
+            httpStatus,
+            request.getRequestURL().toString(), 
+            request.getMethod(), 
+            "Oops! Method not allowed. Check the HTTP method of your request.", 
+            httpRequestMethodNotSupportedException.getMessage(), 
+            timestamp,
+            null
+        );
+
+        return ResponseEntity.status(httpStatus).body(apiError);
     }
 
     private ResponseEntity<ApiError> handleMethodArgumentNotValidException(
