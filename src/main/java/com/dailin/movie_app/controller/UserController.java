@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.dailin.movie_app.dto.request.SaveUser;
 import com.dailin.movie_app.dto.response.GetUser;
-import com.dailin.movie_app.exception.ObjectNotFoundException;
 import com.dailin.movie_app.service.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -67,24 +66,14 @@ public class UserController {
     @RequestMapping(method = RequestMethod.PUT, value = "/{username}")
     public ResponseEntity<GetUser> updateOneByUsername(@PathVariable String username, @RequestBody SaveUser saveDto){
 
-        try {
-            GetUser userUpdated = userService.updatedOneByUsername(username, saveDto);
-            return ResponseEntity.ok(userUpdated);
-        } 
-        catch (ObjectNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+        GetUser userUpdated = userService.updatedOneByUsername(username, saveDto);
+        return ResponseEntity.ok(userUpdated);
     }
 
     @DeleteMapping(value = "/{username}")
     public ResponseEntity<Void> deleteOneByUsername(@PathVariable String username) {
         
-        try {
-            userService.deleteOneByUsername(username);
-            return ResponseEntity.noContent().build();
-        } 
-        catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+        userService.deleteOneByUsername(username);
+        return ResponseEntity.noContent().build();
     }
 }

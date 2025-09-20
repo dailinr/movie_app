@@ -11,7 +11,7 @@ import jakarta.validation.constraints.Size;
 public record SaveUser(
     
     @NotBlank(message = "{generic.notblank}")
-    @Pattern(regexp = "[a-zA-Z0-9-_]{8, 255}", message = "{saveUser.username.pattern}") 
+    @Pattern(regexp = "[a-zA-Z0-9-_]{8,255}", message = "{saveUser.username.pattern}")
     // puede incluir mayus y minus, numeros y (_ o -) . con minimo 8 caracteres
     String username,
     
