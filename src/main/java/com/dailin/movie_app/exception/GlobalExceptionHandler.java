@@ -6,8 +6,10 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -31,6 +33,8 @@ public class GlobalExceptionHandler {
         MethodArgumentTypeMismatchException.class, // el tipo de dato del argumento no coinciden 
         MethodArgumentNotValidException.class, // el arg no es valido (según jakarta validation)
         HttpRequestMethodNotSupportedException.class, // 405: method http no permitido
+        HttpMediaTypeNotSupportedException.class, // formato no soportado (solo JSON)
+        HttpMessageNotReadableException.class, // formato de datos ilegible 
     }) 
     public ResponseEntity<ApiError> handleAllExceptions(
         Exception exception, 
@@ -56,9 +60,56 @@ public class GlobalExceptionHandler {
         else if(exception instanceof HttpRequestMethodNotSupportedException httpRequestMethodNotSupportedException){
             return this.handleHttpRequestMethodNotSupportedException(httpRequestMethodNotSupportedException, request, response, timestamp);
         }
+        else if(exception instanceof HttpMediaTypeNotSupportedException httpMediaTypeNotSupportedException){
+            return this.handleHttpMediaTypeNotSupportedException(httpMediaTypeNotSupportedException, request, response, timestamp);
+        }
+        else if(exception instanceof HttpMessageNotReadableException httpMessageNotReadableException){
+            return this.handleHttpMessageNotReadableException(httpMessageNotReadableException, request, response, timestamp);
+        }
         else {
             return this.handleException(exception, request, response, timestamp);
         }
+    }
+
+    private ResponseEntity<ApiError> handleHttpMessageNotReadableException(
+            HttpMessageNotReadableException httpMessageNotReadableException, HttpServletRequest request,
+            HttpServletResponse response, LocalDateTime timestamp) {
+        
+        int httpStatus = HttpStatus.BAD_REQUEST.value(); 
+
+        ApiError apiError =  new ApiError(
+            httpStatus,
+            request.getRequestURL().toString(), 
+            request.getMethod(), 
+            "Opps! Error reading the HTTP message body. "+
+            "Make sure the request is corretly formatted and contains valid data.", 
+            httpMessageNotReadableException.getMessage(), 
+            timestamp,
+            null
+        );
+
+        return ResponseEntity.status(httpStatus).body(apiError);     
+    }
+
+    private ResponseEntity<ApiError> handleHttpMediaTypeNotSupportedException(
+            HttpMediaTypeNotSupportedException httpMediaTypeNotSupportedException, HttpServletRequest request,
+            HttpServletResponse response, LocalDateTime timestamp) {
+        
+        int httpStatus = HttpStatus.UNSUPPORTED_MEDIA_TYPE.value(); 
+
+        ApiError apiError =  new ApiError(
+            httpStatus,
+            request.getRequestURL().toString(), 
+            request.getMethod(), 
+            "Unsupported Media Type: The server is unable to process the requested entity in the format provided in the request. "+
+            "Supported media types are: " + httpMediaTypeNotSupportedException.getSupportedMediaTypes() + 
+            " and you send: " + httpMediaTypeNotSupportedException.getContentType(), 
+            httpMediaTypeNotSupportedException.getMessage(), 
+            timestamp,
+            null
+        );
+
+        return ResponseEntity.status(httpStatus).body(apiError);     
     }
 
     private ResponseEntity<ApiError> handleHttpRequestMethodNotSupportedException(
