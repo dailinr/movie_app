@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dailin.movie_app.dto.request.MovieSearchCriteria;
 import com.dailin.movie_app.dto.request.SaveMovie;
 import com.dailin.movie_app.dto.response.GetMovie;
 import com.dailin.movie_app.exception.ObjectNotFoundException;
@@ -14,7 +15,6 @@ import com.dailin.movie_app.persistence.entity.Movie;
 import com.dailin.movie_app.persistence.repository.MovieCrudRepository;
 import com.dailin.movie_app.persistence.specification.FindAllMoviesSpecification;
 import com.dailin.movie_app.service.MovieService;
-import com.dailin.movie_app.util.MovieGenre;
 
 @Service
 @Transactional
@@ -25,36 +25,12 @@ public class MovieServiceImpl implements MovieService{
 
     @Transactional(readOnly = true)
     @Override
-    public List<GetMovie> findAll(String title, MovieGenre genre, Integer minReleaseYear) {
+    public List<GetMovie> findAll(MovieSearchCriteria searchCriteria) {
         
-        FindAllMoviesSpecification moviesSpecification = new FindAllMoviesSpecification(title, genre, minReleaseYear);
+        FindAllMoviesSpecification moviesSpecification = new FindAllMoviesSpecification(searchCriteria);
         List<Movie> entities = movieCrudRepository.findAll(moviesSpecification);
         return MovieMapper.toGetDtoList(entities);
     }
-    
-    // @Transactional(readOnly = true)
-    // @Override
-    // public List<GetMovie> findAllByTitle(String title) {
-    //     // return movieCrudRepository.findByTitleContaining(title);
-    //     List<Movie> entities = movieCrudRepository.findByTitleContaining(title);
-    //     return MovieMapper.toGetDtoList(entities);
-    // }
-    
-    // @Transactional(readOnly = true)
-    // @Override
-    // public List<GetMovie> findAllByGenre(MovieGenre genre) {
-    //     // return movieCrudRepository.findByGenre(genre);
-    //     List<Movie> entities = movieCrudRepository.findByGenre(genre);
-    //     return MovieMapper.toGetDtoList(entities);
-    // }
-    
-    // @Transactional(readOnly = true)
-    // @Override
-    // public List<GetMovie> findAllByGenreAndTitle(MovieGenre genre, String title) {
-    //     // return movieCrudRepository.findByGenreAndTitleContaining(genre, title);
-    //     List<Movie> entities = movieCrudRepository.findByGenreAndTitleContaining(genre, title);
-    //     return MovieMapper.toGetDtoList(entities);
-    // }
     
     @Transactional(readOnly = true)
     @Override
@@ -101,10 +77,4 @@ public class MovieServiceImpl implements MovieService{
         movieCrudRepository.delete(movie);
     }
 
-    // @Override
-    // public List<GetMovie> findAllByGenreAndTitleAndReleaseYear(MovieGenre genre, String title, Integer minReleaseYear) {
-    //     List<Movie> entities = movieCrudRepository.findByGenreAndTitleContainingAndRealeaseYearGreaterThanEqual(genre, title, minReleaseYear);
-
-    //     return MovieMapper.toGetDtoList(entities);
-    // }
 }

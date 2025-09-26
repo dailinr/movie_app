@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.dailin.movie_app.dto.request.MovieSearchCriteria;
 import com.dailin.movie_app.dto.request.SaveMovie;
 import com.dailin.movie_app.dto.response.GetMovie;
 import com.dailin.movie_app.service.MovieService;
@@ -31,10 +33,11 @@ public class MovieController {
 
     @GetMapping
     public ResponseEntity<List<GetMovie>> findAll(@RequestParam(required = false) String title, 
-        @RequestParam(required = false) MovieGenre genre, @RequestParam(required = false) Integer minReleaseYear) 
+        @RequestParam(required = false) MovieGenre genre,
+        @RequestParam(required = false) Integer minReleaseYear, @RequestParam(required = false) Integer maxReleaseYear) 
     {
-
-        List<GetMovie> peliculas = movieService.findAll(title, genre, minReleaseYear);
+        MovieSearchCriteria searchCriteria = new MovieSearchCriteria(title, genre, minReleaseYear, maxReleaseYear);
+        List<GetMovie> peliculas = movieService.findAll(searchCriteria);
 
         return ResponseEntity.ok(peliculas); // opcion 3: mas usuada
     }

@@ -6,8 +6,8 @@ import java.util.List;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.StringUtils;
 
+import com.dailin.movie_app.dto.request.MovieSearchCriteria;
 import com.dailin.movie_app.persistence.entity.Movie;
-import com.dailin.movie_app.util.MovieGenre;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -17,14 +17,10 @@ import jakarta.persistence.criteria.Root;
 // <> en base a que entidad se armará la query (from tabl)
 public class FindAllMoviesSpecification implements Specification<Movie> {
 
-    private String title;
-    private MovieGenre genre;
-    private Integer minReleaseYear;
+    private MovieSearchCriteria searchCriteria;
 
-    public FindAllMoviesSpecification(String title, MovieGenre genre, Integer minReleaseYear) {
-        this.title = title;
-        this.genre = genre;
-        this.minReleaseYear = minReleaseYear;
+    public FindAllMoviesSpecification(MovieSearchCriteria searchCriteria) {
+        this.searchCriteria = searchCriteria;
     }
 
     @Override
@@ -36,26 +32,38 @@ public class FindAllMoviesSpecification implements Specification<Movie> {
         // esta será la lista de predicados
         List<Predicate> predicates = new ArrayList<>();
 
-        if(StringUtils.hasText(this.title)){
+        if(StringUtils.hasText(this.searchCriteria.title())){
             // nombre atributo de la entidad y el valor de la busqueda (viene desde el controlador)
-            Predicate titleLike = criteriaBuilder.like(root.get("title"), "%"+this.title+"%");
+            Predicate titleLike = criteriaBuilder.like(root.get("title"), "%"+this.searchCriteria.title()+"%");
             // m.title like '%sjdjdj%'
 
             predicates.add(titleLike);
         }
 
-        if(genre != null) {
-            Predicate genreEqual = criteriaBuilder.equal(root.get("genre"), this.genre);
+        if(searchCriteria.genre() != null) {
+            Predicate genreEqual = criteriaBuilder.equal(root.get("genre"), this.searchCriteria.genre());
             // m.genre = ?
             predicates.add(genreEqual);
         }
 
-        if(minReleaseYear != null && minReleaseYear.intValue() > 0){
-            Predicate releaseYearGreaterThanEqual = criteriaBuilder
-                .greaterThanOrEqualTo(root.get("releaseYear"), this.minReleaseYear);
+        if(searchCriteria.minReleaseYear() != null && this.searchCriteria.minReleaseYear().intValue() > 0){
+            
+            Predicate releaseYearGreaterThanEqual = criteriaBuilder.greaterThanOrEqualTo(
+                root.get("releaseYear"), this.searchCriteria.minReleaseYear()
+            );
 
             // m.releaseYear >= ?
             predicates.add(releaseYearGreaterThanEqual);
+        }
+
+        if(searchCriteria.maxReleaseYear() != null && this.searchCriteria.maxReleaseYear().intValue() > 0) {
+
+            Predicate releaseYearLessThanEqual = criteriaBuilder.lessThanOrEqualTo(
+                root.get("releaseYear"), this.searchCriteria.maxReleaseYear()
+            );
+
+            // m.releaseYear <= ?
+            predicates.add(releaseYearLessThanEqual);
         }
 
         // necesitamos convertir la lista de predicados a un arreglo
