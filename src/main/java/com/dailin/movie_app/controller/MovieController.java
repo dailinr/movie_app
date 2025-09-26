@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,24 +31,10 @@ public class MovieController {
 
     @GetMapping
     public ResponseEntity<List<GetMovie>> findAll(@RequestParam(required = false) String title, 
-        @RequestParam(required = false) MovieGenre genre) 
+        @RequestParam(required = false) MovieGenre genre, @RequestParam(required = false) Integer minReleaseYear) 
     {
 
-        List<GetMovie> peliculas = null;
-
-        // validamos que haya un valor para variable title y que no este vacio con espacione en blanco
-        if(StringUtils.hasText(title) && genre != null) {
-            peliculas = movieService.findAllByGenreAndTitle(genre, title);
-        }
-        else if(StringUtils.hasText(title)) {
-            peliculas = movieService.findAllByTitle(title);
-        }
-        else if(genre != null){
-            peliculas = movieService.findAllByGenre(genre);
-        }
-        else {
-            peliculas = movieService.findAll();
-        }
+        List<GetMovie> peliculas = movieService.findAll(title, genre, minReleaseYear);
 
         return ResponseEntity.ok(peliculas); // opcion 3: mas usuada
     }
