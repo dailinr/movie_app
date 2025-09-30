@@ -34,9 +34,10 @@ public class MovieController {
     @GetMapping
     public ResponseEntity<List<GetMovie>> findAll(@RequestParam(required = false) String title, 
         @RequestParam(required = false) MovieGenre genre,
-        @RequestParam(required = false) Integer minReleaseYear, @RequestParam(required = false) Integer maxReleaseYear) 
+        @RequestParam(required = false) Integer minReleaseYear, @RequestParam(required = false) Integer maxReleaseYear,
+        @RequestParam(required = false) Integer minAverageRating ) 
     {
-        MovieSearchCriteria searchCriteria = new MovieSearchCriteria(title, genre, minReleaseYear, maxReleaseYear);
+        MovieSearchCriteria searchCriteria = new MovieSearchCriteria(title, genre, minReleaseYear, maxReleaseYear, minAverageRating);
         List<GetMovie> peliculas = movieService.findAll(searchCriteria);
 
         return ResponseEntity.ok(peliculas); // opcion 3: mas usuada
